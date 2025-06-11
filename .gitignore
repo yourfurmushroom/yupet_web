@@ -1,0 +1,6 @@
+# 忽略 Access 資料庫檔案
+*.accdb
+*.laccdb
+
+# 忽略 .next 資料夾（build 輸出）
+.next
