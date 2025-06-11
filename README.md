@@ -1,5 +1,6 @@
 # 此專案包含next專案與後端專案，是SPA網頁
-還有flutter的專案，用以從邊緣裝置透過藍牙接收資料，手機傳送心率資料到資料庫，前端再顯示給使用者
+
+還有[flutter的專案](https://github.com/yourfurmushroom/yupet_flutter)，用以從邊緣裝置透過藍牙接收資料，手機傳送心率資料到資料庫，前端再顯示給使用者
 |資料夾|說明|
 |---|---|
 |dog-web|next前端|
