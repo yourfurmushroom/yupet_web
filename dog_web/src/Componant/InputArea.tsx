@@ -58,7 +58,7 @@ export default function LoginArea({ ...loginConfig }: UserLoginConfig & UserAcco
                 </div>
                 <div className="mb-5 ">
                     <label className="inline-flex items-center text-sm text-gray-700">
-                        <input type="checkbox" className="mr-2" onChange={() => loginConfig.setUserRemember(prev => !prev)} /> 記住我
+                        <input type="checkbox" className="mr-2" onChange={() => loginConfig.setUserRemember(prev => !prev)} /> Remember Me
                     </label>
                 </div>
             </div>

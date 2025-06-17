@@ -236,7 +236,7 @@ function TakeAction({isUserLogin,setRegister}:LoginStatus)
                     <span className="w-[100%] text-white text-[40px] flex justify-center pt-[5%] mb-5">Start monitoring your pet’s heart health now</span>
                     <span className="w-[80%] text-white text-[20px] flex justify-center text-center mb-5">Register on the Yupet platform to use AI technology for analyzing your pet’s heart rhythm, detect potential issues early, and give your pet a healthier life.</span>
                     <div className="flex w-full justify-center mb-12">
-                        {!isUserLogin&&<Button type="action" disabled={false} actionFunction={setRegister} className="blink-border-button bg-orange-600 text-white w-[10%] h-13 rounded-3xl hover:bg-orange-700 duration-300 ease-in-out" name="立即註冊"></Button>}
+                        {!isUserLogin&&<Button type="action" disabled={false} actionFunction={setRegister} className="blink-border-button bg-orange-600 text-white w-[10%] h-13 rounded-3xl hover:bg-orange-700 duration-300 ease-in-out" name="Register now"></Button>}
                     </div>
                 </div>
             </div>

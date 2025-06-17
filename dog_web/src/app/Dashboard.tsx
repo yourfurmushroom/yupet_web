@@ -157,7 +157,7 @@ function OverallPage({ sendMessage, showAddPet, setShowAddPet, userName, petData
                     <a href="#records" className="text-blue-500 hover:underline">查看全部</a>
                 </div>
                 <ul className="space-y-4"> */}
-                    {/* <ActivityItem
+            {/* <ActivityItem
                         icon="fas fa-file-medical"
                         title="Lucky 的心律分析完成"
                         time="今天 14:30"
@@ -172,7 +172,7 @@ function OverallPage({ sendMessage, showAddPet, setShowAddPet, userName, petData
                         title="DogDay 的心律分析完成"
                         time="3 天前"
                     /> */}
-                {/* </ul> */}
+            {/* </ul> */}
             {/* </div> */}
         </div>
     )
@@ -243,9 +243,9 @@ function GeneratePetRow(petlist: any) {
     );
 }
 
-function PetDetailRow({ key, name, type, age, weight, sex, note, isStatic }: any) {
+function PetDetailRow({ rowkey, name, type, age, weight, sex, note, isStatic }: any) {
     return (
-        <div key={key} className={`flex justify-center items-center w-full h-14 border-2 border-black rounded-2xl mb-3 ${!isStatic && 'hover:scale-105 hover:bg-blue-400 duration-300 ease-in-out'}`}>
+        <div key={rowkey} className={`flex justify-center items-center w-full h-14 border-2 border-black rounded-2xl mb-3 ${!isStatic && 'hover:scale-105 hover:bg-blue-400 duration-300 ease-in-out'}`}>
             <div className={' inline-block w-[10%] mx-auto text-center font-bold '}>{name}</div>
             <div className=' inline-block w-[10%] mx-auto text-center font-bold'>{type}</div>
             <div className=' inline-block w-[10%] mx-auto text-center font-bold'>{age}</div>
@@ -346,7 +346,7 @@ function ECGGraphArea({ graphData, setShowGraph }: { graphData: string, setShowG
                 data: dataArray,
                 borderColor: 'rgb(75, 192, 192)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.1,
+                tension: 0.4,
                 pointRadius: 0, // Remove points for cleaner line
             },
         ],
@@ -370,6 +370,9 @@ function ECGGraphArea({ graphData, setShowGraph }: { graphData: string, setShowG
                     display: true,
                     text: 'Sample Index',
                 },
+                ticks: {
+                    stepSize: 10,
+                },
             },
             y: {
                 title: {
@@ -382,14 +385,14 @@ function ECGGraphArea({ graphData, setShowGraph }: { graphData: string, setShowG
 
     return (
         <>
-        {window.scrollTo({ top: 0, behavior: 'smooth' })}
+            {window.scrollTo({ top: 0, behavior: 'smooth' })}
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-300 backdrop-blur-sm opacity-50" onClick={() => { setShowGraph(prev => !prev) }}>
             </div>
-            <div className="absolute z-150 w-[700px] max-h-[90vh] overflow-y-auto p-6 bg-white rounded-lg shadow-xl">
+            <div className="absolute z-150 w-[90%] transform -translate-x-[25%] -translate-y-[30%] max-h-[95vh] overflow-y-auto px-3 bg-white rounded-lg shadow-xl">
                 <div className="flex justify-end m-5">
                     <Button disabled={false} type="action" name="x" actionFunction={() => { setShowGraph(prev => !prev) }} className=" absolute font-bold text-3xl" />
                 </div>
-                <div>
+                <div className='w-full'>
                     <Line data={chartData} options={options} />
                 </div>
             </div>
@@ -435,7 +438,7 @@ function generateRow(itemsList: any, petFilter: any, timeFilter: any, setGraphDa
                     <td>{x['rhythm'] ?? "nan"}</td>
                     <td>{x['status'] ?? "nan"}</td>
                     <td>
-                        <button className="bg-blue-500 text-white px-2 py-1 rounded" onClick={() => { controlGraphData(setGraphData, setShowGraph, x['data']) }}>查看圖表</button>
+                        <button className="bg-blue-500 text-white px-2 py-1 rounded" onClick={() => { controlGraphData(setGraphData, setShowGraph, x['data']) }}>View Graph</button>
                     </td>
                 </tr>
             )

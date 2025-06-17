@@ -90,7 +90,7 @@ export default function ContactUs({sendMessage}:{sendMessage:any}) {
                         </label>
                     </div>
                     <div className="mb-5 ml-6">
-                        <Button type="action" name="傳送訊息" disabled={name==""||email==""||title==""||content==""} actionFunction={()=>sendMessage("ContactUs",contactUsArgs)} className={`${name!==""&&email!==""&&title!==""&&content!=="" ? "":"disabled:opacity-50 disabled:cursor-not-allowed"} m-2 border-2 bg-blue-500 text-white font-bold group relative inline-block rounded-2xl h-12 w-32 hover:bg-blue-600 hover:scale-110`}></Button>
+                        <Button type="action" name="Send Message" disabled={name==""||email==""||title==""||content==""} actionFunction={()=>sendMessage("ContactUs",contactUsArgs)} className={`${name!==""&&email!==""&&title!==""&&content!=="" ? "":"disabled:opacity-50 disabled:cursor-not-allowed"} m-2 border-2 bg-blue-500 text-white font-bold group relative inline-block rounded-2xl h-12 w-32 hover:bg-blue-600 hover:scale-110`}></Button>
                     </div>
                 </div>
             </div>
