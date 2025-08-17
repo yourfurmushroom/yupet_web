@@ -133,7 +133,7 @@ function OverallPage({ sendMessage, showAddPet, setShowAddPet, userName, petData
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <OverviewCard icon="fas fa-paw" title="Number of pets" value={petData.petQuantity.toString()} description="Registered pets" />
                 <OverviewCard icon="fas fa-chart-line" title="Number of analyses" value={petData.analysisList.length.toString()} description="Completed heart rhythm analyses" />
-                <OverviewCard icon="fas fa-heartbeat" title="Average heart rate" value="85 BPM" description="Last 30 days" />
+                {/* <OverviewCard icon="fas fa-heartbeat" title="Average heart rate" value="85 BPM" description="Last 30 days" /> */}
                 {/* <OverviewCard icon="fas fa-calendar-check" title="下次檢查" value="3 天" description="建議檢查時間" /> */}
             </div>
 
@@ -256,68 +256,186 @@ function PetDetailRow({ rowkey, name, type, age, weight, sex, note, isStatic }: 
     )
 }
 
+function PetDetailsModal({
+  petName,
+  petData,
+  setShowDetails,
+  setGraphData,
+  setShowGraph,
+}: {
+  petName: string;
+  petData: PetData;
+  setShowDetails: React.Dispatch<React.SetStateAction<boolean>>;
+  setGraphData: React.Dispatch<React.SetStateAction<string>>;
+  setShowGraph: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const petRecords = petData.analysisList.filter((x: any) => x['petname'] === petName);
+
+  // 處理點擊背景關閉模態視窗
+  const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setShowDetails(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      onClick={handleBackgroundClick}
+    >
+      <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <h2 className="text-2xl font-semibold mb-4">{petName} Records</h2>
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="text-left bg-gray-200">
+              <th className="p-2">Date</th>
+              <th className="p-2">Name</th>
+              {/* <th className="p-2">心率</th>
+              <th className="p-2">節律</th> */}
+              <th className="p-2">Status</th>
+              <th className="p-2">Graph</th>
+            </tr>
+          </thead>
+          <tbody>
+            {petRecords.map((x: any, index: number) => (
+              <tr key={index}>
+                <td className="p-2">{x['time']}</td>
+                <td className="p-2">{x['petname']}</td>
+                <td className="p-2">{x['status'] ?? "nan"}</td>
+                <td className="p-2">
+                  <button
+                    className="bg-blue-500 text-white px-2 py-1 rounded"
+                    onClick={() => {
+                      setGraphData(x['data']);
+                      setShowGraph(true);
+                    }}
+                  >
+                    Show Graph
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button
+          className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+          onClick={() => setShowDetails(false)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
 function RecordsPage({ sendMessage, showAddPet, setShowAddPet, petData }: RemotePetStatus & { petData: PetData }) {
-    const [petFilter, setPetFilter] = useState('all');
-    const [timeFilter, setTimeFilter] = useState('1000');
-    const [showGraph, setShowGraph] = useState<boolean>(false)
-    const [graphData, setGraphData] = useState<string>("")
+  const [petFilter, setPetFilter] = useState('all');
+  const [timeFilter, setTimeFilter] = useState('1000');
+  const [showGraph, setShowGraph] = useState<boolean>(false);
+  const [graphData, setGraphData] = useState<string>("");
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [selectedPet, setSelectedPet] = useState<string>("");
 
-    const handlePetFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setPetFilter(event.target.value);
-    };
+  const handlePetFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPetFilter(event.target.value);
+  };
 
-    const handleTimeFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setTimeFilter(event.target.value);
-    };
+  const handleTimeFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setTimeFilter(event.target.value);
+  };
 
-    return (
-        <div className="tab-content w-full" id="records">
-            {showGraph && <ECGGraphArea graphData={graphData} setShowGraph={setShowGraph}></ECGGraphArea>}
-            <div className="records-header flex justify-between items-center p-4 bg-gray-100 rounded-t-lg">
-                <h2 className="records-title text-2xl font-semibold">Analysis records</h2>
-                <div className="records-filter flex gap-4">
-                    <select
-                        id="petFilter"
-                        value={petFilter}
-                        onChange={handlePetFilterChange}
-                        className="p-2 border rounded-lg bg-white"
-                    >
-                        <option value="all">All Pet</option>
-                        {/* <option value="1">Lucky</option>
-                        <option value="2">DogDay</option> */}
-                        {generatePetOption(petData.petList)}
-                    </select>
-                    <select
-                        id="timeFilter"
-                        value={timeFilter}
-                        onChange={handleTimeFilterChange}
-                        className="p-2 border rounded-lg bg-white"
-                    >
-                        <option value={1000}>All time</option>
-                        <option value={7}>Last 7 days</option>
-                        <option value={30}>Last 30 days</option>
-                        <option value={90}>Last 90 days</option>
-                    </select>
-                </div>
-            </div>
+  // 獲取唯一寵物名稱並檢查狀態
+  const uniquePets = Array.from(new Set(petData.analysisList.map((x: any) => x['petname']))).map((petName: string) => {
+    const hasIssue = petData.analysisList
+      .filter((x: any) => x['petname'] === petName)
+      .some((x: any) => x['status'] !== 'N');
+    return { petName, hasIssue };
+  });
 
-            <table className="records-table w-full table-auto mt-6">
-                <thead>
-                    <tr className="text-left bg-gray-200">
-                        <th className="p-2 w-32">Date</th>
-                        <th className="p-2">Pet Name</th>
-                        <th className="p-2">Heart Rate</th>
-                        <th className="p-2">Heart rhythm types</th>
-                        <th className="p-2">Status</th>
-                        <th className="p-2">Option</th>
-                    </tr>
-                </thead>
-                <tbody id="recordsTableBody">
-                    {generateRow(petData.analysisList, petFilter, timeFilter, setGraphData, setShowGraph)}
-                </tbody>
-            </table>
-        </div>
-    );
+  // 過濾寵物列表
+  const filteredPets = uniquePets.filter((pet) => petFilter === 'all' || pet.petName === petFilter);
+
+  // 根據時間過濾
+  const now = Date.now();
+  const timeThreshold = now - Number(timeFilter) * 24 * 60 * 60 * 1000;
+  const filteredPetData = {
+    ...petData,
+    analysisList: petData.analysisList.filter((x: any) => {
+      const timestamp = new Date(x['time'].replace(' ', 'T')).getTime();
+      return timestamp >= timeThreshold;
+    }),
+  };
+
+  return (
+    <div className="tab-content w-full" id="records">
+      {showGraph && <ECGGraphArea graphData={graphData} setShowGraph={setShowGraph} />}
+      {showDetails && (
+        <PetDetailsModal
+          petName={selectedPet}
+          petData={filteredPetData}
+          setShowDetails={setShowDetails}
+          setGraphData={setGraphData}
+          setShowGraph={setShowGraph}
+        />
+      )}
+      <div className="records-header flex justify-between items-center p-4 bg-gray-100 rounded-t-lg">
+        <h2 className="records-title text-2xl font-semibold">Pet Record</h2>
+        {/* <div className="records-filter flex gap-4">
+          <select
+            id="petFilter"
+            value={petFilter}
+            onChange={handlePetFilterChange}
+            className="p-2 border rounded-lg bg-white"
+          >
+            <option value="all">所有寵物</option>
+            {generatePetOption(petData.petList)}
+          </select>
+          <select
+            id="timeFilter"
+            value={timeFilter}
+            onChange={handleTimeFilterChange}
+            className="p-2 border rounded-lg bg-white"
+          >
+            <option value={1000}>所有時間</option>
+            <option value={7}>最近7天</option>
+            <option value={30}>最近30天</option>
+            <option value={90}>最近90天</option>
+          </select>
+        </div> */}
+      </div>
+
+      <div className="pet-list mt-6">
+        {/* <h3 className="text-xl font-semibold mb-4">寵物列表</h3> */}
+        <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredPets.map((pet: { petName: string; hasIssue: boolean }, index: number) => (
+            <li
+              key={index}
+              className={`p-4 rounded-lg flex justify-between items-center cursor-pointer ${
+                pet.hasIssue ? 'bg-red-100' : 'bg-gray-100'
+              }`}
+              onClick={() => {
+                setSelectedPet(pet.petName);
+                setShowDetails(true);
+              }}
+            >
+              <span className="text-lg">{pet.petName}</span>
+              <div className="flex items-center gap-2">
+                {pet.hasIssue && <span className="text-red-600 font-semibold">ALERT!!</span>}
+                <button
+                  className="bg-blue-500 text-white px-3 py-1 rounded"
+                  onClick={() => {
+                    setSelectedPet(pet.petName);
+                    setShowDetails(true);
+                  }}
+                >
+                  Show Details
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
 }
 
 const Line = dynamic(() => import('react-chartjs-2').then((mod) => mod.Line), {
